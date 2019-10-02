@@ -93,16 +93,23 @@ std::stringstream& operator>>(std::stringstream &ss, Ipv4 & ipv4){
 
 
 void Ipv4::ShowInRangeTo(Ipv4 &ipv4){
-	long long ipVal = (octets[3]<<24) + (octets[2]<<16) + (octets[1]<<8) + (octets[0]);
+	int ipVal = (octets[0]<<24) + (octets[1]<<16) + (octets[2]<<8) + (octets[3]);
 	std::cout<<ipVal<<std::endl;
+
+	int givenIp = (ipv4.octets[0]<<24) + (ipv4.octets[1]<<16) + (ipv4.octets[2]<<8) + (ipv4.octets[3]);
+	std::cout<<givenIp<<std::endl;
+
+	int diff = givenIp -  ipVal;
+	std::cout<<diff<<std::endl;
 }
 
 
 int main(int argc, char **argv)
 {
-	Ipv4 ipv4("14.15.17.18");
-	std::cout<<ipv4;
-	ipv4.ShowInRangeTo(ipv4);
+	Ipv4 ipCli("14.15.17.18");
+	Ipv4 ipServ("14.15.17.30");
+	std::cout<<ipCli;
+	ipCli.ShowInRangeTo(ipServ);
 	std::cin.get();
 }
 
