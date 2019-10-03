@@ -7,6 +7,7 @@
 #include <istream>
 #include <ostream>
 #include <sstream>
+#include <cstdlib>
 
 class Ipv4
 {
@@ -14,7 +15,13 @@ class Ipv4
 	std::vector<int> octets;
 	std::initializer_list<int> init = {0,0,0,0};
 
-
+	int convertToInt (Ipv4 &ip){
+		int givenIp = 0;
+		for (int i=0; i<4; i++){
+			givenIp +=(ip.octets[i]<<((3-i)*8));
+		}
+		return givenIp;
+	};
 
 public:
 	Ipv4(void){
@@ -93,13 +100,13 @@ std::stringstream& operator>>(std::stringstream &ss, Ipv4 & ipv4){
 
 
 void Ipv4::ShowInRangeTo(Ipv4 &ipv4){
-	int ipVal = (octets[0]<<24) + (octets[1]<<16) + (octets[2]<<8) + (octets[3]);
+	int ipVal = convertToInt(*this);
 	std::cout<<ipVal<<std::endl;
 
-	int givenIp = (ipv4.octets[0]<<24) + (ipv4.octets[1]<<16) + (ipv4.octets[2]<<8) + (ipv4.octets[3]);
+	int givenIp = convertToInt(ipv4);
 	std::cout<<givenIp<<std::endl;
 
-	int diff = givenIp -  ipVal;
+	int diff = std::abs(givenIp -  ipVal);
 	std::cout<<diff<<std::endl;
 }
 
@@ -109,6 +116,7 @@ int main(int argc, char **argv)
 	Ipv4 ipCli("14.15.17.18");
 	Ipv4 ipServ("14.15.17.30");
 	std::cout<<ipCli;
+	std::cout<<ipServ;
 	ipCli.ShowInRangeTo(ipServ);
 	std::cin.get();
 }
