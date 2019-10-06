@@ -8,6 +8,7 @@
 #include <ostream>
 #include <sstream>
 #include <cstdlib>
+#include <iomanip>
 
 class Ipv4
 {
@@ -25,10 +26,65 @@ public:
 	Ipv4(std::string str);
 	void ShowInRangeTo(Ipv4 &ipv4);
 
+	Ipv4& operator++();
+	Ipv4 operator++(int);
+	bool operator>(const Ipv4 & rhs);
+
+	bool operator<(const Ipv4 & rhs);
+	bool operator>=(const Ipv4 & rhs);
+	bool operator<=(const Ipv4 & rhs);
+
 	friend std::ostream& operator << (std::ostream& out,  Ipv4 const &ipv4);
 	friend std::istream& operator >> (std::istream& in, Ipv4 &ipv4);
 	friend std::stringstream& operator>>(std::stringstream &ss, Ipv4 & ipv4);
+
 };
+
+
+bool Ipv4::operator>(const Ipv4 & rhs){
+	return octets > rhs.octets;
+}
+
+
+bool Ipv4::operator<(const Ipv4 & rhs){
+	return !operator>(rhs);
+}
+
+bool Ipv4::operator>=(const Ipv4 & rhs){
+	return  !operator<(rhs);
+}
+bool Ipv4::operator<=(const Ipv4 & rhs){
+	return  !operator>(rhs);
+}
+
+
+Ipv4& Ipv4::operator++(void){
+	octets[3]++;
+
+	if (octets[3] > 255){
+		octets[3] = 0;
+		octets[2]++;
+	}
+	if (octets[2] > 255){
+		octets[2] = 0;
+		octets[1]++;
+	}
+	if (octets[1] > 255){
+		octets[1] = 0;
+		octets[0]++;
+	}
+
+return *this;
+}
+
+
+Ipv4 Ipv4::operator++(int){
+	Ipv4 copy {*this};
+	operator++();
+	return copy;
+}
+
+
 
 
 Ipv4::Ipv4(std::string str){
@@ -51,7 +107,7 @@ int Ipv4::convertToInt (Ipv4 &ip){
 		givenIp +=(ip.octets[i]<<((3-i)*8));
 	}
 	return givenIp;
-};
+}
 
 
 std::ostream& operator << (std::ostream& out,  Ipv4 const & ipv4)
@@ -65,8 +121,6 @@ std::ostream& operator << (std::ostream& out,  Ipv4 const & ipv4)
 
 	out<<std::endl;
 	return out;
-
-
 }
 
 std::istream& operator >> (std::istream& in, Ipv4 & ipv4)
@@ -105,52 +159,29 @@ std::stringstream& operator>>(std::stringstream &ss, Ipv4 & ipv4){
 
 
 
-void Ipv4::ShowInRangeTo(Ipv4 &ipv4){
-	int ipVal = convertToInt(*this);
-	std::cout<<ipVal<<std::endl;
-
-	int givenIp = convertToInt(ipv4);
-	std::cout<<givenIp<<std::endl;
-
-	int diff = std::abs(givenIp -  ipVal);
-	std::cout<<diff<<std::endl;
-
-	std::vector<int> tmp = octets;
-	for (int i=0; i<diff; i++){
-		if (tmp[3] > 255){
-			tmp[2]++;
-			tmp[3] = 0;
-		}
-		if (tmp[2] > 255){
-			tmp[1]++;
-			tmp[3] = 0;
-			tmp[2] = 0;
-		}
-		if (tmp[2] > 255){
-			tmp[0]++;
-			tmp[3] = 0;
-			tmp[2] = 0;
-			tmp[1] = 0;
-		}
 
 
-		for (auto i = tmp.begin(); i != tmp.end();i++ ) {
-			std::cout << *i;
-			if (i != tmp.end()-1){
-				std::cout << ".";
-			}
-		}
-		std::cout << std::endl;
-		tmp[3]++;
+void Ipv4::ShowInRangeTo(Ipv4 &ip){
+	if (*this > ip){
+		std::cout<<"no valid range";
+	}
+	Ipv4 ipThis = *this;
+	while (ipThis < ip){
+		std::cout<<ipThis<<std::endl;
+		ipThis++;
 	}
 }
 
 
 int main(int argc, char **argv)
 {
-	Ipv4 ipCli("14.15.17.178");
+	Ipv4 ipCli("14.15.17.255");
 	Ipv4 ipServ("14.15.18.30");
 	std::cout<<ipCli;
+	ipCli++;
+	std::cout<<ipCli;
+
+
 	std::cout<<ipServ;
 	ipCli.ShowInRangeTo(ipServ);
 	std::cin.get();
