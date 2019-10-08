@@ -16,14 +16,18 @@ class Ipv4
 	std::vector<int> octets;
 	std::initializer_list<int> init = {0,0,0,0};
 
-	int convertToInt (Ipv4 &ip);
+
 
 public:
+	int ToInt(void);
+
+
 	Ipv4(void){
 	}
 
 
 	Ipv4(std::string str);
+	Ipv4(int ip);
 	void ShowInRangeTo(Ipv4 &ipv4);
 
 	Ipv4& operator++();
@@ -101,10 +105,22 @@ Ipv4::Ipv4(std::string str){
 
 
 
-int Ipv4::convertToInt (Ipv4 &ip){
+
+Ipv4::Ipv4(int ip){
+	octets.resize(4);
+	for (auto i = octets.rbegin(); i != octets.rend(); i++){
+		*i=(ip&0xFF);
+		ip = ip>>8;
+	}
+}
+
+
+
+int Ipv4::ToInt (){
 	int givenIp { 0 };
-	for (int i=0; i<4; i++){
-		givenIp +=(ip.octets[i]<<((3-i)*8));
+	for (auto i : octets){
+		givenIp = givenIp<<8;
+		givenIp += i;
 	}
 	return givenIp;
 }
@@ -166,6 +182,7 @@ void Ipv4::ShowInRangeTo(Ipv4 &ip){
 		std::cout<<"no valid range";
 	}
 	Ipv4 ipThis = *this;
+
 	while (ipThis < ip){
 		std::cout<<ipThis<<std::endl;
 		ipThis++;
@@ -182,8 +199,13 @@ int main(int argc, char **argv)
 	std::cout<<ipCli;
 
 
-	std::cout<<ipServ;
-	ipCli.ShowInRangeTo(ipServ);
+//	std::cout<<ipServ;
+//	ipCli.ShowInRangeTo(ipServ);
+
+
+	Ipv4 ipInt(3452516227);
+	std::cout<<ipInt;
+	std::cout<<ipInt.ToInt();
 	std::cin.get();
 }
 
