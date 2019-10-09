@@ -37,6 +37,9 @@ public:
 	bool operator<(const Ipv4 & rhs);
 	bool operator>=(const Ipv4 & rhs);
 	bool operator<=(const Ipv4 & rhs);
+	bool operator==(const Ipv4 & rhs);
+	bool operator!=(const Ipv4 & rhs);
+
 
 	friend std::ostream& operator << (std::ostream& out,  Ipv4 const &ipv4);
 	friend std::istream& operator >> (std::istream& in, Ipv4 &ipv4);
@@ -57,26 +60,21 @@ bool Ipv4::operator<(const Ipv4 & rhs){
 bool Ipv4::operator>=(const Ipv4 & rhs){
 	return  !operator<(rhs);
 }
+
 bool Ipv4::operator<=(const Ipv4 & rhs){
 	return  !operator>(rhs);
 }
 
+bool Ipv4::operator==(const Ipv4 & rhs){
+	return octets == rhs.octets;
+}
+
+bool Ipv4::operator!=(const Ipv4 & rhs){
+	return !(*this == rhs);
+}
 
 Ipv4& Ipv4::operator++(void){
-	octets[3]++;
-
-	if (octets[3] > 255){
-		octets[3] = 0;
-		octets[2]++;
-	}
-	if (octets[2] > 255){
-		octets[2] = 0;
-		octets[1]++;
-	}
-	if (octets[1] > 255){
-		octets[1] = 0;
-		octets[0]++;
-	}
+	*this = Ipv4(ToInt() +1);
 
 return *this;
 }
@@ -174,9 +172,6 @@ std::stringstream& operator>>(std::stringstream &ss, Ipv4 & ipv4){
 
 
 
-
-
-
 void Ipv4::ShowInRangeTo(Ipv4 &ip){
 	if (*this > ip){
 		std::cout<<"no valid range";
@@ -193,14 +188,14 @@ void Ipv4::ShowInRangeTo(Ipv4 &ip){
 int main(int argc, char **argv)
 {
 	Ipv4 ipCli("14.15.17.255");
-	Ipv4 ipServ("14.15.18.30");
+	Ipv4 ipServ("14.15.18.12");
 	std::cout<<ipCli;
 	ipCli++;
 	std::cout<<ipCli;
 
 
-//	std::cout<<ipServ;
-//	ipCli.ShowInRangeTo(ipServ);
+	std::cout<<ipServ;
+	ipCli.ShowInRangeTo(ipServ);
 
 
 	Ipv4 ipInt(3452516227);
