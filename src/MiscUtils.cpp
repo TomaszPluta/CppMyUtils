@@ -9,6 +9,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <iomanip>
+#include <stdarg.h>
 
 class Ipv4
 {
@@ -185,6 +186,52 @@ void Ipv4::ShowInRangeTo(Ipv4 &ip){
 }
 
 
+
+template <typename T>
+T minimum(T const a, T const b){
+	return (a < b) ? a : b;
+}
+
+
+
+template <typename T1, typename... T>
+T1 minimum(T1 a, T... args){
+	return minimum(a, minimum(args...));
+}
+
+//
+//template <typename... T>
+//T minimal(int count){
+//	 va_list args{};
+//	 va_start(args, count);
+//	 T min = va_arg(args, T);
+//	 for(int i = 0; i < count; ++i ){
+//		T currArg = va_arg(args, T);
+//		if (currArg < min){
+//			min = currArg;
+//		}
+//	 }
+//	 va_end(args);
+//	 return min;
+//	// https://www.go4expert.com/articles/passing-variable-arguments-cpp-function-t17592/
+//}
+
+
+template <typename T>
+T MinSimple(int count , T a, T b){
+	 T	min =  (a < b) ? a : b;
+	 return min;
+}
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char **argv)
 {
 	Ipv4 ipCli("14.15.17.255");
@@ -202,6 +249,14 @@ int main(int argc, char **argv)
 	std::cout<<ipInt;
 	std::cout<<ipInt.ToInt();
 	std::cin.get();
+
+	int a {6};
+	int b {2};
+	int c {4};
+	int min = minimum(a,b,c);
+	int min2 = MinSimple(2, a, c);
+	std::cout<<min;
+
 }
 
 
