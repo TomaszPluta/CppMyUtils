@@ -11,6 +11,9 @@
 #include <iomanip>
 #include <stdarg.h>
 
+#include "fileHandler.h"
+
+
 class Ipv4
 {
 	static  constexpr int octetsNb = 4;
@@ -193,28 +196,21 @@ T minimum(T const a, T const b){
 }
 
 
-
 template <typename T1, typename... T>
 T1 minimum(T1 a, T... args){
 	return minimum(a, minimum(args...));
 }
 
+
+
+//
+//
 //
 //template <typename... T>
-//T minimal(int count){
-//	 va_list args{};
-//	 va_start(args, count);
-//	 T min = va_arg(args, T);
-//	 for(int i = 0; i < count; ++i ){
-//		T currArg = va_arg(args, T);
-//		if (currArg < min){
-//			min = currArg;
-//		}
-//	 }
-//	 va_end(args);
-//	 return min;
-//	// https://www.go4expert.com/articles/passing-variable-arguments-cpp-function-t17592/
+//void  Maximum(T){
+//	https://eli.thegreenplace.net/2014/variadic-templates-in-c/
 //}
+
 
 
 template <typename T>
@@ -231,8 +227,7 @@ T MinSimple(int count , T a, T b){
 
 
 
-
-int main(int argc, char **argv)
+int mainIP(int argc, char **argv)
 {
 	Ipv4 ipCli("14.15.17.255");
 	Ipv4 ipServ("14.15.18.12");
