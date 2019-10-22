@@ -5,15 +5,15 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/MiscUtils.cpp \
-../src/misc2.cpp 
+../src/proc.cpp 
 
 OBJS += \
 ./src/MiscUtils.o \
-./src/misc2.o 
+./src/proc.o 
 
 CPP_DEPS += \
 ./src/MiscUtils.d \
-./src/misc2.d 
+./src/proc.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
