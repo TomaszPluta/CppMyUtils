@@ -16,7 +16,7 @@
 #include "fileHandler.h"
 #include <experimental/filesystem>
 #include <sstream>
-
+#include <algorithm>
 
 namespace fs = std::experimental::filesystem;
 
@@ -34,6 +34,13 @@ bool IsNumber(std::string num){
 }
 
 
+bool IsNumber2(std::string num){
+	return (std::find_if(num.begin(), num.end(), [&](auto i){return (!isdigit(i));}) ==  std::end(num));
+}
+
+
+
+
 std::vector<fs::path> GetSubDirectories(fs::path dir){
 	std::vector<fs::path> subDirs;
 	if ((fs::exists(dir)) && (fs::is_directory(dir))){
@@ -41,11 +48,12 @@ std::vector<fs::path> GetSubDirectories(fs::path dir){
 			if (fs::is_directory(entry.status())){
 				subDirs.push_back(entry);
 				std::cout<<entry.path()<<std::endl;
+
 				auto it = entry.path().end();
-				it--;
+				it--; //w jednej lini?
 
 				std::cout<<*it<<std::endl;
-				if (IsNumber(std::string(entry.path()))){
+				if (IsNumber2(std::string(*it))){
 					std::cout<<"found "<<entry.path().c_str()<<std::endl;
 				} else{
 					std::cout<<"NOT found: "<<entry.path().c_str()<<std::endl;
