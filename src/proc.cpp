@@ -125,8 +125,19 @@ std::map<std::string, std::string>  GetKeyValuesFromFile(fs::path filePath){
 std::vector<fs::path> GetFilesInDir(fs::path dir){
 	std::vector<fs::path> files;
 	if ((fs::exists(dir)) && (fs::is_directory(dir))){
-		for (const auto & entry : fs::directory_iterator(dir)){
-			if (fs::is_regular_file(entry.status())){
+		for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
+			std::cout<<entry.path()<<std::endl;
+
+
+
+			std::error_code ec;
+			if (fs::is_regular_file(entry.status(ec))){
+
+				fs::perms p = entry.status().permissions();
+				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
+																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
+				std::cout <<"\t" << entry << std::endl;
+
 				files.push_back(entry); ///
 				if (entry.path().filename() == "status"){
 					std::map<std::string, std::string> stats = GetKeyValuesFromFile(entry);
@@ -162,6 +173,7 @@ int main(int argc, char **argv)
 	std::vector<fs::path> subDirs = GetSubDirectories("/proc");
 	std::vector<fs::path> files = GetFilesInDir(subDirs[0]);
 //	std::cout<<procFiles;
+	std::cout<<"done"<<'\n';
 	std::cin.get();
 }
 
