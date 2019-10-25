@@ -125,18 +125,17 @@ std::map<std::string, std::string>  GetKeyValuesFromFile(fs::path filePath){
 std::vector<fs::path> GetFilesInDir(fs::path dir){
 	std::vector<fs::path> files;
 	if ((fs::exists(dir)) && (fs::is_directory(dir))){
-		for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
-			std::cout<<entry.path()<<std::endl;
-
-
+		//for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
+			//std::cout<<entry.path()<<std::endl;
+		for (auto& entry : fs::directory_iterator(dir)) {
 
 			std::error_code ec;
 			if (fs::is_regular_file(entry.status(ec))){
-
+				std::cout<<ec<<std::endl;
 				fs::perms p = entry.status().permissions();
-				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
-																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
-				std::cout <<"\t" << entry << std::endl;
+//				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
+//																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
+//				std::cout <<"\t" << entry << std::endl;
 
 				files.push_back(entry); ///
 				if (entry.path().filename() == "status"){
@@ -150,6 +149,46 @@ std::vector<fs::path> GetFilesInDir(fs::path dir){
 	}
 	return files;
 }
+
+
+
+
+
+
+
+//
+//
+//std::vector<fs::path> GetFilesInDir(fs::path dir){
+//	std::vector<fs::path> files;
+//	if ((fs::exists(dir)) && (fs::is_directory(dir))){
+//		for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
+//			std::cout<<entry.path()<<std::endl;
+//
+//			std::error_code ec;
+//			if (fs::is_regular_file(entry.status(ec))){
+//
+//				fs::perms p = entry.status().permissions();
+//				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
+//																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
+//				std::cout <<"\t" << entry << std::endl;
+//
+//				files.push_back(entry); ///
+//				if (entry.path().filename() == "status"){
+//					std::map<std::string, std::string> stats = GetKeyValuesFromFile(entry);
+//					ProcessInfo pInfo;
+//					pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
+//					asm volatile ("nop");
+//				}
+//			}
+//		}
+//	}
+//	return files;
+//}
+//
+//
+
+
+
 
 
 
