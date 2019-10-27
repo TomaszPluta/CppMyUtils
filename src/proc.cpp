@@ -122,7 +122,7 @@ std::map<std::string, std::string>  GetKeyValuesFromFile(fs::path filePath){
 
 
 
-std::vector<fs::path> GetFilesInDir(fs::path dir){
+std::vector<fs::path> GetFilesInDirX(fs::path dir){
 	std::vector<fs::path> files;
 	if ((fs::exists(dir)) && (fs::is_directory(dir))){
 		//for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
@@ -151,9 +151,54 @@ std::vector<fs::path> GetFilesInDir(fs::path dir){
 }
 
 
+bool GetFilePathFromDirectory(const fs::path &dir){
+	const auto pathIter = std::find_if(fs::directory_iterator(dir), end(fs::directory_iterator(dir)),
+			[](const auto &entry){return(entry.path().filename() == "status");});
+	if (pathIter !=  end(fs::directory_iterator(dir))){
+		return true;
+	}
+	return false;
+}
+
+
+bool GetFilePathFromDirectory2(const fs::path &dir, const fs::path &fname){
+	const auto pathIter = std::find_if(fs::directory_iterator(dir), end(fs::directory_iterator(dir)),
+			[&fname](const auto &entry){return(entry.path().filename() == fname);});
+	if (pathIter !=  end(fs::directory_iterator(dir))){
+		return true;
+	}
+	return false;
+}
 
 
 
+
+
+//	std::vector<fs::path> files;
+//	if ((fs::exists(dir)) && (fs::is_directory(dir))){
+//		for (auto& entry : fs::directory_iterator(dir)) {
+//			std::error_code ec;
+//			if (fs::is_regular_file(entry.status(ec))){
+//				std::cout<<ec<<std::endl;
+//				files.push_back(entry); ///
+//				if (entry.path().filename() == "status"){
+//
+//				}
+//			}
+//		}
+//	}
+//	return files;
+//}
+
+//
+//proces infor vector GetProcesWithAtrFromFIleList(file list){
+//	std::map<std::string, std::string> stats = GetKeyValuesFromFile(entry);
+//						ProcessInfo pInfo;
+//						pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
+//						asm volatile ("nop");
+//}
+//
+//
 
 
 //
@@ -210,7 +255,10 @@ public:
 int main(int argc, char **argv)
 {
 	std::vector<fs::path> subDirs = GetSubDirectories("/proc");
-	std::vector<fs::path> files = GetFilesInDir(subDirs[0]);
+
+//	std::vector<fs::path> files = GetFilesFromDirectory(subDirs[0]);
+	std::cout<<GetFilePathFromDirectory(subDirs[0]);
+	std::cout<<GetFilePathFromDirectory2(subDirs[0], "status");
 //	std::cout<<procFiles;
 	std::cout<<"done"<<'\n';
 	std::cin.get();
