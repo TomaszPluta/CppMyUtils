@@ -100,6 +100,24 @@ std::vector<fs::path> GetSubDirectories(fs::path dir){
 
 
 
+
+bool IsNumber2(const fs::directory_entry de){
+
+	//return (std::find_if(path.string().begin(), path.string().end(), [&](auto i){return (!isdigit(i));}) ==  std::end(path.string()));
+	return true;
+}
+
+
+//
+//
+//void EraseEntries(fs::path dir){
+//	std::remove_if(fs::directory_iterator(dir),
+//			end(fs::directory_iterator(dir)),
+//			IsNumber2);
+//
+//}
+
+
 std::map<std::string, std::string>  GetKeyValuesFromFile(fs::path filePath){
 	std::map<std::string, std::string> keyVals;
 	std::ifstream sfile(filePath);
@@ -114,11 +132,11 @@ std::map<std::string, std::string>  GetKeyValuesFromFile(fs::path filePath){
 					keyVals[key]= value;
 				}
 			}
-
 		}
 	}
 	return keyVals;
 }
+
 
 
 
@@ -151,17 +169,7 @@ std::vector<fs::path> GetFilesInDirX(fs::path dir){
 }
 
 
-bool GetFilePathFromDirectory(const fs::path &dir){
-	const auto pathIter = std::find_if(fs::directory_iterator(dir), end(fs::directory_iterator(dir)),
-			[](const auto &entry){return(entry.path().filename() == "status");});
-	if (pathIter !=  end(fs::directory_iterator(dir))){
-		return true;
-	}
-	return false;
-}
-
-
-bool GetFilePathFromDirectory2(const fs::path &dir, const fs::path &fname){
+bool IsFileInDirectory(const fs::path &dir, const fs::path &fname){
 	const auto pathIter = std::find_if(fs::directory_iterator(dir), end(fs::directory_iterator(dir)),
 			[&fname](const auto &entry){return(entry.path().filename() == fname);});
 	if (pathIter !=  end(fs::directory_iterator(dir))){
@@ -252,13 +260,12 @@ public:
 
 
 
-int main(int argc, char **argv)
+int mainProc(int argc, char **argv)
 {
 	std::vector<fs::path> subDirs = GetSubDirectories("/proc");
 
 //	std::vector<fs::path> files = GetFilesFromDirectory(subDirs[0]);
-	std::cout<<GetFilePathFromDirectory(subDirs[0]);
-	std::cout<<GetFilePathFromDirectory2(subDirs[0], "status");
+	std::cout<<IsFileInDirectory(subDirs[0], "status");
 //	std::cout<<procFiles;
 	std::cout<<"done"<<'\n';
 	std::cin.get();
