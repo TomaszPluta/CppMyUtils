@@ -136,7 +136,7 @@ private:
 
 
 
-int main(void){
+int mainMVC(void){
 
 	SpreadSheetModel spreadSheetModel{};
 

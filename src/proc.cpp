@@ -61,32 +61,28 @@ public:
 
 
 
+ProcessInfo & operator overloading for process info for displaying
+
 
 bool IsNumber(std::string num){
 	return (std::find_if(num.begin(), num.end(), [&](auto i){return (!isdigit(i));}) ==  std::end(num));
 }
 
 
-//std::string GetFileName
 
 
-
-
-std::vector<fs::path> GetSubDirectories(fs::path dir){
+std::vector<fs::path> GetSubDirsNUmberNamed(fs::path dir){
 	std::vector<fs::path> subDirs;
 	if ((fs::exists(dir)) && (fs::is_directory(dir))){
 		for (const auto & entry : fs::directory_iterator(dir)){
 			if (fs::is_directory(entry.status())){
 
 				std::cout<<entry.path()<<std::endl;
+				std::cout<<entry.path().filename()<<std::endl;
 
-				auto it = entry.path().end();
-				it--;
-
-				std::cout<<*it<<std::endl;
-				if (IsNumber(std::string(*it))){
+				if (IsNumber(entry.path().filename().string())){
 					std::cout<<"found "<<entry.path().c_str()<<std::endl;
-					subDirs.push_back(entry); ////przerobic na zwenetrzna funkcje
+					subDirs.push_back(entry);
 				} else{
 					std::cout<<"NOT found: "<<entry.path().c_str()<<std::endl;
 				}
@@ -101,24 +97,9 @@ std::vector<fs::path> GetSubDirectories(fs::path dir){
 
 
 
-bool IsNumber2(const fs::directory_entry de){
-
-	//return (std::find_if(path.string().begin(), path.string().end(), [&](auto i){return (!isdigit(i));}) ==  std::end(path.string()));
-	return true;
-}
 
 
-//
-//
-//void EraseEntries(fs::path dir){
-//	std::remove_if(fs::directory_iterator(dir),
-//			end(fs::directory_iterator(dir)),
-//			IsNumber2);
-//
-//}
-
-
-std::map<std::string, std::string>  GetKeyValuesFromFile(fs::path filePath){
+std::map<std::string, std::string>  GetKeyValuePairsFromFile(fs::path filePath){
 	std::map<std::string, std::string> keyVals;
 	std::ifstream sfile(filePath);
 	if (sfile.is_open()){
@@ -150,14 +131,14 @@ std::vector<fs::path> GetFilesInDirX(fs::path dir){
 			std::error_code ec;
 			if (fs::is_regular_file(entry.status(ec))){
 				std::cout<<ec<<std::endl;
-				fs::perms p = entry.status().permissions();
+			//	fs::perms p = entry.status().permissions();
 //				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
 //																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
 //				std::cout <<"\t" << entry << std::endl;
 
 				files.push_back(entry); ///
 				if (entry.path().filename() == "status"){
-					std::map<std::string, std::string> stats = GetKeyValuesFromFile(entry);
+					std::map<std::string, std::string> stats = GetKeyValuePairsFromFile(entry);
 					ProcessInfo pInfo;
 					pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
 					asm volatile ("nop");
@@ -198,15 +179,6 @@ bool IsFileInDirectory(const fs::path &dir, const fs::path &fname){
 //	return files;
 //}
 
-//
-//proces infor vector GetProcesWithAtrFromFIleList(file list){
-//	std::map<std::string, std::string> stats = GetKeyValuesFromFile(entry);
-//						ProcessInfo pInfo;
-//						pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
-//						asm volatile ("nop");
-//}
-//
-//
 
 
 //
@@ -240,9 +212,19 @@ bool IsFileInDirectory(const fs::path &dir, const fs::path &fname){
 //
 //
 
+using StatsKeyValues = std::map<std::string, std::string>;
 
-
-
+std::vector<ProcessInfo> GetProcessInfo(){
+	std::vector<ProcessInfo> psInfos;
+	std::vector<fs::path> subDirs = GetSubDirsNUmberNamed("/proc");
+	for (const auto &i : subDirs){
+		StatsKeyValues stats = GetKeyValuePairsFromFile(i / "foo");
+		ProcessInfo pInfo;
+		pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
+		psInfos.push_back(pInfo);
+	}
+	return psInfos;
+}
 
 
 
@@ -260,13 +242,14 @@ public:
 
 
 
-int mainProc(int argc, char **argv)
+int main(int argc, char **argv)
 {
-	std::vector<fs::path> subDirs = GetSubDirectories("/proc");
+	std::vector<fs::path> subDirs = GetSubDirsNUmberNamed("/proc");
 
 //	std::vector<fs::path> files = GetFilesFromDirectory(subDirs[0]);
 	std::cout<<IsFileInDirectory(subDirs[0], "status");
-//	std::cout<<procFiles;
+	std::vector<ProcessInfo> pInfos = GetProcessInfo();
+	std::cout<<pInfos<<std::endl;
 	std::cout<<"done"<<'\n';
 	std::cin.get();
 }
