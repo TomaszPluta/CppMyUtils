@@ -17,6 +17,7 @@
 #include <experimental/filesystem>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 namespace fs = std::experimental::filesystem;
 
@@ -57,11 +58,25 @@ public:
 		return *this;
 	}
 
+	friend std::ostream & operator << (std::ostream &out, const ProcessInfo &);
 };
 
 
 
-ProcessInfo & operator overloading for process info for displaying
+std::ostream & operator << (std::ostream &out, const ProcessInfo & pInfo){
+	out<< pInfo._name << " " << std::to_string(pInfo._pid)<<std::endl;
+	return out;
+}
+
+
+template <typename T>
+std::ostream & operator <<(std::ostream & out, const std::vector<T> v){
+	for (const auto &i :v){
+		out<<i<<"\n";
+	}
+	return out;
+}
+
 
 
 bool IsNumber(std::string num){
@@ -218,7 +233,7 @@ std::vector<ProcessInfo> GetProcessInfo(){
 	std::vector<ProcessInfo> psInfos;
 	std::vector<fs::path> subDirs = GetSubDirsNUmberNamed("/proc");
 	for (const auto &i : subDirs){
-		StatsKeyValues stats = GetKeyValuePairsFromFile(i / "foo");
+		StatsKeyValues stats = GetKeyValuePairsFromFile(i / "status");
 		ProcessInfo pInfo;
 		pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
 		psInfos.push_back(pInfo);
@@ -249,7 +264,7 @@ int main(int argc, char **argv)
 //	std::vector<fs::path> files = GetFilesFromDirectory(subDirs[0]);
 	std::cout<<IsFileInDirectory(subDirs[0], "status");
 	std::vector<ProcessInfo> pInfos = GetProcessInfo();
-	std::cout<<pInfos<<std::endl;
+	std::cout<<pInfos;
 	std::cout<<"done"<<'\n';
 	std::cin.get();
 }
