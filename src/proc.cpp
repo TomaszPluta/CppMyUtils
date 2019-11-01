@@ -18,6 +18,8 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
+
 
 namespace fs = std::experimental::filesystem;
 
@@ -32,8 +34,9 @@ class ProcessInfo{
 	int memPeek;
 	int memSwap;
 	int _pid {0};
-	int _ppid{};
-	int _threads;
+	int _ppid{0};
+	int _threads{0};
+	int _memory{0};
 	std::string _comandLine;
 	std::string state;
 public:
@@ -58,19 +61,25 @@ public:
 		return *this;
 	}
 
+	ProcessInfo &addMemory(int memory){
+		_memory = memory;
+		return *this;
+	}
+
+
 	friend std::ostream & operator << (std::ostream &out, const ProcessInfo &);
 };
 
 
 
 std::ostream & operator << (std::ostream &out, const ProcessInfo & pInfo){
-	out<< pInfo._name << " " << std::to_string(pInfo._pid)<<std::endl;
+	out<< "| name:" << std::setw(12) << pInfo._name << " | pid: "<< std::setw(12) << std::to_string(pInfo._pid)<<"| mem: "<< std::setw(12) <<std::to_string(pInfo._memory)<<" |"<<std::endl;
 	return out;
 }
 
 
 template <typename T>
-std::ostream & operator <<(std::ostream & out, const std::vector<T> v){
+std::ostream & operator << (std::ostream & out, const std::vector<T> v){
 	for (const auto &i :v){
 		out<<i<<"\n";
 	}
@@ -135,36 +144,6 @@ std::map<std::string, std::string>  GetKeyValuePairsFromFile(fs::path filePath){
 
 
 
-
-std::vector<fs::path> GetFilesInDirX(fs::path dir){
-	std::vector<fs::path> files;
-	if ((fs::exists(dir)) && (fs::is_directory(dir))){
-		//for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
-			//std::cout<<entry.path()<<std::endl;
-		for (auto& entry : fs::directory_iterator(dir)) {
-
-			std::error_code ec;
-			if (fs::is_regular_file(entry.status(ec))){
-				std::cout<<ec<<std::endl;
-			//	fs::perms p = entry.status().permissions();
-//				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
-//																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
-//				std::cout <<"\t" << entry << std::endl;
-
-				files.push_back(entry); ///
-				if (entry.path().filename() == "status"){
-					std::map<std::string, std::string> stats = GetKeyValuePairsFromFile(entry);
-					ProcessInfo pInfo;
-					pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
-					asm volatile ("nop");
-				}
-			}
-		}
-	}
-	return files;
-}
-
-
 bool IsFileInDirectory(const fs::path &dir, const fs::path &fname){
 	const auto pathIter = std::find_if(fs::directory_iterator(dir), end(fs::directory_iterator(dir)),
 			[&fname](const auto &entry){return(entry.path().filename() == fname);});
@@ -175,57 +154,15 @@ bool IsFileInDirectory(const fs::path &dir, const fs::path &fname){
 }
 
 
-
-
-
-//	std::vector<fs::path> files;
-//	if ((fs::exists(dir)) && (fs::is_directory(dir))){
-//		for (auto& entry : fs::directory_iterator(dir)) {
-//			std::error_code ec;
-//			if (fs::is_regular_file(entry.status(ec))){
-//				std::cout<<ec<<std::endl;
-//				files.push_back(entry); ///
-//				if (entry.path().filename() == "status"){
-//
-//				}
-//			}
-//		}
-//	}
-//	return files;
-//}
-
-
-
-//
-//
-//std::vector<fs::path> GetFilesInDir(fs::path dir){
-//	std::vector<fs::path> files;
-//	if ((fs::exists(dir)) && (fs::is_directory(dir))){
-//		for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
-//			std::cout<<entry.path()<<std::endl;
-//
-//			std::error_code ec;
-//			if (fs::is_regular_file(entry.status(ec))){
-//
-//				fs::perms p = entry.status().permissions();
-//				std::cout <<"\t"<< ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
-//																<< ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-");
-//				std::cout <<"\t" << entry << std::endl;
-//
-//				files.push_back(entry); ///
-//				if (entry.path().filename() == "status"){
-//					std::map<std::string, std::string> stats = GetKeyValuesFromFile(entry);
-//					ProcessInfo pInfo;
-//					pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
-//					asm volatile ("nop");
-//				}
-//			}
-//		}
-//	}
-//	return files;
-//}
-//
-//
+int safeStoi(std::string s){
+	int res = 0;
+	try{
+		res = std::stoi(s.empty()? "0" : s);
+	} catch (std::exception & err){
+		std::cout<<"stoi conv error: " << err.what() <<std::endl;
+	}
+	return res;
+}
 
 using StatsKeyValues = std::map<std::string, std::string>;
 
@@ -235,7 +172,12 @@ std::vector<ProcessInfo> GetProcessInfo(){
 	for (const auto &i : subDirs){
 		StatsKeyValues stats = GetKeyValuePairsFromFile(i / "status");
 		ProcessInfo pInfo;
-		pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"])));
+		try{
+			pInfo.addName(std::string(stats["Name"])).addPid(std::stoi(std::string(stats["Pid"]))).addMemory(safeStoi(stats["RssAnon"]));
+		}
+		catch (std::exception &err){
+			std::cout<<"conversion failure\n";
+		}
 		psInfos.push_back(pInfo);
 	}
 	return psInfos;
