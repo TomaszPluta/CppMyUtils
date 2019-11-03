@@ -20,6 +20,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include "extern/variadic_table.h"
+
 
 namespace fs = std::experimental::filesystem;
 
@@ -29,6 +31,7 @@ using namespace std::string_literals;
 
 
 class ProcessInfo{
+public:
 	std::string _name{""};
 	int memSize;
 	int memPeek;
@@ -39,7 +42,7 @@ class ProcessInfo{
 	int _memory{0};
 	std::string _comandLine;
 	std::string state;
-public:
+
 	ProcessInfo &addName(std::string name){
 		_name = name;
 		return *this;
@@ -73,7 +76,7 @@ public:
 
 
 std::ostream & operator << (std::ostream &out, const ProcessInfo & pInfo){
-	out<< "| name:" << std::setw(12) << pInfo._name << " | pid: "<< std::setw(12) << std::to_string(pInfo._pid)<<"| mem: "<< std::setw(12) <<std::to_string(pInfo._memory)<<" |"<<std::endl;
+	out<< "| name:" << std::setw(20) << pInfo._name << " | pid: "<< std::setw(20) << std::to_string(pInfo._pid)<<"| mem: "<< std::setw(20) <<std::to_string(pInfo._memory)<<" |"<<std::endl;
 	return out;
 }
 
@@ -105,10 +108,10 @@ std::vector<fs::path> GetSubDirsNUmberNamed(fs::path dir){
 				std::cout<<entry.path().filename()<<std::endl;
 
 				if (IsNumber(entry.path().filename().string())){
-					std::cout<<"found "<<entry.path().c_str()<<std::endl;
+			//		std::cout<<"found "<<entry.path().c_str()<<std::endl;
 					subDirs.push_back(entry);
 				} else{
-					std::cout<<"NOT found: "<<entry.path().c_str()<<std::endl;
+				//	std::cout<<"NOT found: "<<entry.path().c_str()<<std::endl;
 				}
 				std::cout<<std::endl;
 			}
@@ -119,7 +122,10 @@ std::vector<fs::path> GetSubDirsNUmberNamed(fs::path dir){
 
 
 
-
+void RemoveTabs(std::string &s){
+//	std::replace(begin(s), end(s), '\t', ' ');
+	s.replace(s.begin(), s.begin()+1, 1,  ' ');
+}
 
 
 
@@ -134,6 +140,7 @@ std::map<std::string, std::string>  GetKeyValuePairsFromFile(fs::path filePath){
 			while(std::getline(streamLine, key, ':')){
 				std::string value;
 				if (std::getline(streamLine, value)){
+					RemoveTabs(value);
 					keyVals[key]= value;
 				}
 			}
@@ -206,7 +213,24 @@ int main(int argc, char **argv)
 //	std::vector<fs::path> files = GetFilesFromDirectory(subDirs[0]);
 	std::cout<<IsFileInDirectory(subDirs[0], "status");
 	std::vector<ProcessInfo> pInfos = GetProcessInfo();
+
+	RemoveTabs(pInfos[0]._name);
+
 	std::cout<<pInfos;
+//	VariadicTable<std::string, int, int> vt{{"Name","PID","Memory"}, pInfos.size()};
+//	for (const auto & i : pInfos){
+//		vt.addRow(i._name, i._pid, i._memory);
+//	}
+
+//    VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"},
+//                                                            10);
+//
+//    vt.addRow({pInfos[0]._name, 180.2, 40, "John"});
+//    vt.addRow({"David", 175.3, 38, "Andrew"});
+//    vt.addRow({"Robert", 140.3, 27, "Fande"});
+//
+//	vt.print(std::cout);
+
 	std::cout<<"done"<<'\n';
 	std::cin.get();
 }
