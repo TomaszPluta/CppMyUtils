@@ -103,17 +103,9 @@ std::vector<fs::path> GetSubDirsNUmberNamed(fs::path dir){
 	if ((fs::exists(dir)) && (fs::is_directory(dir))){
 		for (const auto & entry : fs::directory_iterator(dir)){
 			if (fs::is_directory(entry.status())){
-
-				std::cout<<entry.path()<<std::endl;
-				std::cout<<entry.path().filename()<<std::endl;
-
 				if (IsNumber(entry.path().filename().string())){
-			//		std::cout<<"found "<<entry.path().c_str()<<std::endl;
 					subDirs.push_back(entry);
-				} else{
-				//	std::cout<<"NOT found: "<<entry.path().c_str()<<std::endl;
 				}
-				std::cout<<std::endl;
 			}
 		}
 	}
@@ -123,8 +115,7 @@ std::vector<fs::path> GetSubDirsNUmberNamed(fs::path dir){
 
 
 void RemoveTabs(std::string &s){
-//	std::replace(begin(s), end(s), '\t', ' ');
-	s.replace(s.begin(), s.begin()+1, 1,  ' ');
+	s.erase(std::remove(s.begin(), s.end(), '\t'), s.end());
 }
 
 
@@ -211,7 +202,6 @@ int main(int argc, char **argv)
 	std::vector<fs::path> subDirs = GetSubDirsNUmberNamed("/proc");
 
 //	std::vector<fs::path> files = GetFilesFromDirectory(subDirs[0]);
-	std::cout<<IsFileInDirectory(subDirs[0], "status");
 	std::vector<ProcessInfo> pInfos = GetProcessInfo();
 
 	RemoveTabs(pInfos[0]._name);
