@@ -197,7 +197,7 @@ public:
 
 
 
-int main(int argc, char **argv)
+int mainProc(int argc, char **argv)
 {
 	std::vector<fs::path> subDirs = GetSubDirsNUmberNamed("/proc");
 
