@@ -7,11 +7,41 @@
 #include "sstream"
 #include "memory"
 #include "vector"
+#include "chrono"
+#include "ctime"
 
-//dodac chrono
+
+
+
+
+
+
+
+class TimestampedOutput{
+	std::ostream &_out;
+public:
+	TimestampedOutput(std::ostream out) :_out{out}{};
+//	friend std::ostream& operator<<(std::ostream &out, const TimestampedOutput tsOut);
+};
+
+//
+//
+//std::ostream& operator<<(std::ostream &out, const TimestampedOutput tsOut){
+//
+//	out<<tsOut;
+//	return out;
+//}
+
+
+
+
+
 
 
 class Logger{
+protected:
+//	std::ostream _out;
+
 public :
 	virtual void writeInfo(const std::string_view info) =0;
 	virtual void writeWarn(const std::string_view warn) =0;
@@ -46,34 +76,103 @@ public :
 		}
 	}
 
-
 };
+
 
 
 
 class FileLogger : public Logger{
 	std::ofstream loggerFile;
 
-public:
 	void writeInfo(const std::string_view info){
 		loggerFile<<"[info]"<<info<<'\n';
 	}
 	void writeWarn(const std::string_view warn){
-		loggerFile<<"[warn]"<<warn<<'\n';
+		loggerFile<<"[info]"<<warn<<'\n';
 	}
 	void writeError(const std::string_view error){
 		loggerFile<<"[error]"<<error<<'\n';
 	}
 
+public:
 	FileLogger(){
 		loggerFile.open("logFile1.log", std::ofstream::app);
 	}
 
 	~FileLogger(){
-		loggerFile<<"[endSession]\n\n";
+		loggerFile<<"[endSession]\n";
 	}
 
 };
+
+
+
+
+
+
+class FileInfoLogger : public Logger{
+
+	std::ofstream loggerFile;
+public:
+
+	friend std::ostream& operator>>(std::ostream & out, FileInfoLogger & fl);
+
+
+	FileInfoLogger & operator<<( const std::string_view  & in){
+	//	std::string tmp;
+		//in>>tmp;
+		loggerFile<<in;
+	}
+
+	FileInfoLogger(){
+		loggerFile.open("default_log_file.log", std::ofstream::app);
+	}
+
+	FileInfoLogger(std::string filename){
+		loggerFile.open(filename.c_str(), std::ofstream::app);
+	}
+
+
+	~FileInfoLogger(){
+		loggerFile<<"[endSession]\n";
+	}
+
+
+
+	template <typename T>
+	friend FileInfoLogger& operator<< (FileInfoLogger&  fl, T in);
+
+	void writeInfo(std::string_view info){
+			(void)info;
+		}
+		void writeWarn(std::string_view warn){
+			(void)warn;
+		}
+		void writeError(std::string_view error){
+			(void)error;
+		}
+
+};
+
+
+template <typename T>
+FileInfoLogger& operator<< (FileInfoLogger&  fl, T in){
+	fl.loggerFile << in;
+	return fl;
+}
+
+
+
+//
+//std::istream& operator>> (std::istream &in, FileInfoLogger & fl){
+//	std::string tmp;
+//	in >> tmp;
+//	fl.loggerFile <<tmp;
+//	return in;
+//}
+
+
+
 
 
 class StdOutLogger : public Logger{
@@ -133,21 +232,11 @@ public:
 
 	LoggerFactory(std::string_view cfgFileName) : configFileName{cfgFileName}{};
 
-
-
-
-
-
-
-
 	std::shared_ptr<Logger> createFromCfg () const {
 		std::string cfgContent = readCfgShort();
 		std::vector<loggerType> loggersToCreate = evalueateCnfiguration(cfgContent);
 		return createLogger(loggersToCreate);
 	}
-
-
-
 
 
 	std::shared_ptr<Logger> createLogger(std::vector<loggerType> typesToCreate) const {
@@ -233,14 +322,17 @@ int main(){
 	LoggerFactory loggerFactory("logger.cfg");
 	std::shared_ptr<Logger>  logger = loggerFactory.createLogger({{LoggerFactory::loggerType::FILE}});
 	logger->writeWarn("here is example warn");
+	logger->writeInfo("this is info");
+
 
 	std::shared_ptr<Logger> log = std::make_shared<FileLogger> ();
-//	log->writeError("here are example errrrror");
+	log->writeError("here are example errrrror");
 
 
 
 
-
+	FileInfoLogger ll("streamLOG.txt");
+	ll<<"Ala Makota";
 
 
 	std::shared_ptr<int> intPtr = std::make_shared<int>();
