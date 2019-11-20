@@ -17,27 +17,6 @@
 
 
 
-class TimestampedOutput{
-	std::ostream &_out;
-public:
-	TimestampedOutput(std::ostream out) :_out{out}{};
-//	friend std::ostream& operator<<(std::ostream &out, const TimestampedOutput tsOut);
-};
-
-//
-//
-//std::ostream& operator<<(std::ostream &out, const TimestampedOutput tsOut){
-//
-//	out<<tsOut;
-//	return out;
-//}
-
-
-
-
-
-
-
 class Logger{
 protected:
 //	std::ostream _out;
@@ -46,6 +25,9 @@ public :
 	virtual void writeInfo(const std::string_view info) =0;
 	virtual void writeWarn(const std::string_view warn) =0;
 	virtual void writeError(const std::string_view error) =0;
+
+	template <typename T>
+	friend Logger& operator<<(Logger &logger, T t);
 };
 
 
@@ -160,16 +142,6 @@ FileInfoLogger& operator<< (FileInfoLogger&  fl, T in){
 	fl.loggerFile << in;
 	return fl;
 }
-
-
-
-//
-//std::istream& operator>> (std::istream &in, FileInfoLogger & fl){
-//	std::string tmp;
-//	in >> tmp;
-//	fl.loggerFile <<tmp;
-//	return in;
-//}
 
 
 
@@ -331,8 +303,8 @@ int main(){
 
 
 
-	FileInfoLogger ll("streamLOG.txt");
-	ll<<"Ala Makota";
+	FileInfoLogger ll("fileLOG.txt");
+	ll<<"we log everything"<<"even the fact that we are logging now for "<<13<<"times";
 
 
 	std::shared_ptr<int> intPtr = std::make_shared<int>();

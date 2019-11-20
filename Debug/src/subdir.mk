@@ -5,14 +5,23 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/MiscUtils.cpp \
+../src/dirSize.cpp \
+../src/logger.cpp \
+../src/mvc.cpp \
 ../src/proc.cpp 
 
 OBJS += \
 ./src/MiscUtils.o \
+./src/dirSize.o \
+./src/logger.o \
+./src/mvc.o \
 ./src/proc.o 
 
 CPP_DEPS += \
 ./src/MiscUtils.d \
+./src/dirSize.d \
+./src/logger.d \
+./src/mvc.d \
 ./src/proc.d 
 
 
