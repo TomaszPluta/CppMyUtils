@@ -1,0 +1,10 @@
+[Wed Nov 20 22:42:34 2019
+]we log everything[Wed Nov 20 22:42:34 2019
+]even the fact that we are logging now for [Wed Nov 20 22:42:34 2019
+]13[Wed Nov 20 22:42:34 2019
+]times[endSession]
+[Wed Nov 20 22:43:17 2019
+]we log everything[Wed Nov 20 22:43:17 2019
+]even the fact that we are logging now for [Wed Nov 20 22:43:17 2019
+]13[Wed Nov 20 22:43:17 2019
+]times[endSession]

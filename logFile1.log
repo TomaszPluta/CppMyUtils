@@ -59,3 +59,13 @@ here is example warn
 [info]here is example warn
 [info]this is info
 [endSession]
+[error]here are example errrrror
+[endSession]
+[info]here is example warn
+[info]this is info
+[endSession]
+[error]here are example errrrror
+[endSession]
+[info]here is example warn
+[info]this is info
+[endSession]

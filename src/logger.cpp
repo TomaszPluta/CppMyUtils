@@ -99,13 +99,6 @@ public:
 
 	friend std::ostream& operator>>(std::ostream & out, FileInfoLogger & fl);
 
-
-	FileInfoLogger & operator<<( const std::string_view  & in){
-	//	std::string tmp;
-		//in>>tmp;
-		loggerFile<<in;
-	}
-
 	FileInfoLogger(){
 		loggerFile.open("default_log_file.log", std::ofstream::app);
 	}
@@ -139,7 +132,9 @@ public:
 
 template <typename T>
 FileInfoLogger& operator<< (FileInfoLogger&  fl, T in){
-	fl.loggerFile << in;
+	auto timestampRaw = std::chrono::system_clock::now();
+	time_t timeToPrint =  std::chrono::system_clock::to_time_t(timestampRaw);
+	fl.loggerFile <<"["<< std::ctime(&timeToPrint)<<"]"<<in;
 	return fl;
 }
 
@@ -302,7 +297,6 @@ int main(){
 
 
 
-
 	FileInfoLogger ll("fileLOG.txt");
 	ll<<"we log everything"<<"even the fact that we are logging now for "<<13<<"times";
 
@@ -314,50 +308,7 @@ int main(){
 
 
 
-	std::cout<< *intPtr;
-	std::cout << std::endl;
-	if (x.unique()){
-		std::cout << "unique";
-	} else{
-		std::cout << "first ref: " << intPtr.use_count();
-	}
-	std::cout << std::endl;
 
-	fun(intPtr);
-
-
-	std::cout<<*intPtr.get();
-	std::cout << std::endl;
-	if (x.unique()){
-		std::cout << "unique";
-	} else{
-		std::cout << "first ref: " << intPtr.use_count();
-	}
-	std::cout << std::endl;
-
-
-	x.reset();
-	if (x){
-	std::cout << std::endl;
-		if (x.unique()){
-			std::cout << "unique";
-		} else{
-			std::cout << " second ref: " << intPtr.use_count();
-		}
-	}
-
-	x = std::make_shared<int>(99);
-
-	if (x){
-	std::cout << std::endl;
-	std::cout << *x;
-
-		if (x.unique()){
-			std::cout << "unique";
-		} else{
-			std::cout << " third ref: " << intPtr.use_count();
-		}
-	}
 
 
 }
