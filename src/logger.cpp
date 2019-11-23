@@ -12,10 +12,26 @@
 
 
 
-class Logger
+
+
+
+class ILogger
 {
+protected:
+
+public:
+
+
+};
+
+
+
+class Logger : public ILogger
+{
+protected:
       std::ostream &out_;
 public:
+      std::string id = "this_is_is";
     Logger(std::ostream &out) : out_{out}{};
 
     template < typename T >
@@ -30,19 +46,15 @@ public:
          return *this;
      }
 
-    template<typename T>
-    Logger& withTimestamp(T in){
+    Logger& withTimestamp(){
     	auto timeRaw = std::chrono::system_clock::now();
     	time_t timeT = std::chrono::system_clock::to_time_t(timeRaw);
     	std::string timeHuman{std::ctime(&timeT)};
     	timeHuman.pop_back();
-    	*this<<"["<<timeHuman<<"]"<<in;
+    	*this<<"["<<timeHuman<<"]";
     	return *this;
     }
 };
-
-
-
 
 template < typename T >
 Logger & operator<< (Logger & logger, T in){
@@ -57,18 +69,38 @@ Logger & operator<< (Logger & logger, T in){
 
 
 
-class CompositLogger:public Logger
+class CompositLogger : public ILogger
 {
   std::vector < std::shared_ptr < Logger >> loggers;
 
 public:
+
   void addLogger (std::shared_ptr < Logger > logger)
   {
     loggers.push_back (logger);
   }
 
+  CompositLogger& withTimestamp(){
+	  for (auto i : loggers){
+	  		i->withTimestamp();
+	  	}
+	  	return *this;
+  }
+
  template <typename T>
  friend CompositLogger& operator<<(CompositLogger &cLogger, T in);
+
+
+
+ CompositLogger& operator <<(std::ostream& (*os)(std::ostream&))
+  {
+	  for (auto i : loggers){
+		  		i->operator <<(os);
+		  	}
+      return *this;
+  }
+
+
 
 };
 
@@ -76,7 +108,7 @@ public:
 template <typename T>
 CompositLogger & operator<<(CompositLogger &cLogger, T in){
 	for (auto i : cLogger.loggers){
-		i << in;
+		*i<<in;
 	}
 	return cLogger;
 }
@@ -203,19 +235,29 @@ int
 main ()
 {
 
-
-  Logger ll (std::cout);
-  ll << "we log everything" << " even the fact that we are logging now for "
-    << 13 << "times"<<std::endl;
-  ll<<"and new line after endl"<<std::endl;;
-  ll.withTimestamp("timestamps are useful")<<" - indeed, they are"<<std::endl;
-
+//  Logger ll (std::cout);
+//  ll << "we log everything" << " even the fact that we are logging now for "
+//    << 13 << "times"<<std::endl;
+//  ll<<"and new line after endl"<<std::endl;;
+//  ll.withTimestamp<<" timestamped"<<std::endl;
 
 
-  std::ofstream fileStreamLog("logTest.txt", std::ofstream::app);
-  Logger lf (fileStreamLog);
-  lf << "there is example of file log" << " we can use it as same as cout "
-    << 99 << std::endl<<"blah blah, so we can see that overloaded endl is what we need\n";
+
+  CompositLogger cLogger;
+
+  std::ofstream fileComp("composite.log");
+  cLogger.addLogger(std::make_shared<Logger>(fileComp));
+
+  std::ofstream anotherFileComp("another.log");
+  cLogger.addLogger(std::make_shared<Logger>(anotherFileComp));
+
+  cLogger.addLogger(std::make_shared<Logger>(std::cout));
+  cLogger<<"composite log here";
+  cLogger.withTimestamp()<<"timestamped log"<<"with endline"<<std::endl;
+  cLogger.withTimestamp()<<"happy logging"<<std::endl;
+
+
+
 
 
 }
