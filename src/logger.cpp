@@ -19,7 +19,7 @@ public:
     Logger(std::ostream &out) : out_{out}{};
 
     template < typename T >
-    friend Logger & operator<< (Logger & logger, T t);
+    friend Logger & operator<< (Logger& logger, T t);
 
     template <typename T>
     friend Logger & endl (Logger & logger, T in);
@@ -29,6 +29,16 @@ public:
          (*this).out_ << os;
          return *this;
      }
+
+    template<typename T>
+    Logger& withTimestamp(T in){
+    	auto timeRaw = std::chrono::system_clock::now();
+    	time_t timeT = std::chrono::system_clock::to_time_t(timeRaw);
+    	std::string timeHuman{std::ctime(&timeT)};
+    	timeHuman.pop_back();
+    	*this<<"["<<timeHuman<<"]"<<in;
+    	return *this;
+    }
 };
 
 
@@ -197,7 +207,8 @@ main ()
   Logger ll (std::cout);
   ll << "we log everything" << " even the fact that we are logging now for "
     << 13 << "times"<<std::endl;
-  ll<<"and new line after endl";
+  ll<<"and new line after endl"<<std::endl;;
+  ll.withTimestamp("timestamps are useful")<<" - indeed, they are"<<std::endl;
 
 
 
