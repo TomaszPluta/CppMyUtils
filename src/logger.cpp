@@ -14,17 +14,22 @@
 
 
 
-
+//delete this
 class ILogger
 {
 protected:
-
+	ILogger(){};
 public:
+	virtual ~ILogger() =0;
+
 
 
 };
 
 
+ILogger::~ILogger(){
+	;
+}
 
 class Logger : public ILogger
 {
@@ -66,13 +71,59 @@ Logger & operator<< (Logger & logger, T in){
 
 
 
+//
+//
+//class CompositLogger : public ILogger
+//{
+//  std::vector < std::shared_ptr < Logger >> loggers;
+//
+//public:
+//
+//  void addLogger (std::shared_ptr < Logger > logger)
+//  {
+//    loggers.push_back (logger);
+//  }
+//
+//  CompositLogger& withTimestamp(){
+//	  for (auto i : loggers){
+//	  		i->withTimestamp();
+//	  	}
+//	  	return *this;
+//  }
+//
+// template <typename T>
+// friend CompositLogger& operator<<(CompositLogger &cLogger, T in);
+//
+//
+//
+// CompositLogger& operator <<(std::ostream& (*os)(std::ostream&))
+//  {
+//	  for (auto i : loggers){
+//		  		i->operator <<(os);
+//		  	}
+//      return *this;
+//  }
+//
+//};
+//
+//
+//template <typename T>
+//CompositLogger & operator<<(CompositLogger &cLogger, T in){
+//	for (auto i : cLogger.loggers){
+//		*i<<in;
+//	}
+//	return cLogger;
+//}
+
+
+
 
 
 
 class CompositLogger : public ILogger
 {
   std::vector < std::shared_ptr < Logger >> loggers;
-
+std::vector<std::shared_ptr<CompositLogger>>compositeLoggers;
 public:
 
   void addLogger (std::shared_ptr < Logger > logger)
@@ -80,10 +131,19 @@ public:
     loggers.push_back (logger);
   }
 
+  void addLogger (std::shared_ptr < CompositLogger > compositLogger)
+  {
+	  //check is not in list to avoid loops?
+	  compositeLoggers.push_back (compositLogger);
+  }
+
   CompositLogger& withTimestamp(){
 	  for (auto i : loggers){
 	  		i->withTimestamp();
 	  	}
+	  for (auto i : compositeLoggers){
+			i->withTimestamp();
+		}
 	  	return *this;
   }
 
@@ -97,10 +157,11 @@ public:
 	  for (auto i : loggers){
 		  		i->operator <<(os);
 		  	}
+	  for (auto i : compositeLoggers){
+			i->operator <<(os);
+			  	}
       return *this;
   }
-
-
 
 };
 
@@ -110,123 +171,69 @@ CompositLogger & operator<<(CompositLogger &cLogger, T in){
 	for (auto i : cLogger.loggers){
 		*i<<in;
 	}
+	for (auto i : cLogger.compositeLoggers){
+		*i<<in;
+	}
 	return cLogger;
 }
 
-//class LoggerFactory
-//{
-//public:
-//  enum class loggerType:int
-//  {
-//    FILE,
-//    SOUT,
-//    REMOTE,
-//  };
-//
-//    LoggerFactory (std::string_view cfgFileName):configFileName
-//  {
-//  cfgFileName}
-//  {
-//  };
-//
-//  std::shared_ptr < Logger > createFromCfg ()const
-//  {
-//    std::string cfgContent = readCfgShort ();
-//    std::vector < loggerType > loggersToCreate =
-//      evalueateCnfiguration (cfgContent);
-//    return createLogger (loggersToCreate);
-//  }
-//
-//
-//  std::shared_ptr < Logger > createLogger (std::vector < loggerType >
-//					   typesToCreate) const
-//  {
-//    std::shared_ptr < CompositLogger > loggerPtr =
-//      std::make_shared < CompositLogger > ();
-//    for (auto & i:typesToCreate)
-//      {
-//	switch (i)
-//	  {
-//	  case loggerType::FILE:
-//	    {
-//	      loggerPtr->addLogger (std::make_shared < FileLogger > ());
-//	      break;
-//	    }
-//	    case loggerType::REMOTE:
-//	    {
-//	      loggerPtr->addLogger (std::make_shared < RemoteLogger > ());
-//	      break;
-//	    }
-//	  case loggerType::SOUT:
-//	    {
-//	      loggerPtr->addLogger (std::make_shared < StdOutLogger > ());
-//	      break;
-//	    }
-//	  default:
-//	    {
-//	      loggerPtr->addLogger (std::make_shared < NullLogger > ());
-//	    }
-//	  }
-//      }
-//
-//    return std::static_pointer_cast < Logger > (loggerPtr);
-//  }
-//
-//private:
-//  std::string configFileName;
-//
-//
-//  std::string readCfg ()const;
-//
-//  std::string readCfgShort ()const;
-//
-//
-//  std::vector < loggerType >
-//    evalueateCnfiguration (std::string_view configuration) const;
-//
-//};
-//
-//
-//std::string LoggerFactory::readCfg () const
-//{
-//  std::fstream cfgFileStream (configFileName);
-//  std::stringstream ss;
-//  ss << cfgFileStream.rdbuf ();
-//  return std::string (ss.str ());
-//}
-//
-//std::string LoggerFactory::readCfgShort () const
-//{
-//  std::fstream cfgFileStream (configFileName);
-//  return std::string (std::istreambuf_iterator < char >(cfgFileStream),
-//		      std::istreambuf_iterator < char >());
-//}
-//
-//
-//std::vector < LoggerFactory::loggerType >
-//  LoggerFactory::
-//evalueateCnfiguration (std::string_view configuration) const
-//{
-//  std::vector < loggerType > usedLoggers;
-//  if (configuration.find ("SOUT") != std::string::npos)
-//    {
-//      usedLoggers.push_back (loggerType::SOUT);
-//    }
-//
-//  if (configuration.find ("FILE") != std::string::npos)
-//    {
-//      usedLoggers.push_back (loggerType::FILE);
-//    }
-//
-//  if (configuration.find ("REMOTE") != std::string::npos)
-//    {
-//      usedLoggers.push_back (loggerType::REMOTE);
-//    }
-//
-//  return usedLoggers;
-//}
-//
-//
+
+
+
+
+
+
+
+
+
+
+class LoggerFactory
+{
+	 std::ofstream loggerFile;
+public:
+  enum class loggerType:int
+  {
+    FILE,
+    SOUT,
+    COMPOSIT,
+  };
+
+
+  ~LoggerFactory(){
+	  if (loggerFile.is_open()){
+		  loggerFile.close();
+	  }
+  }
+
+
+  std::shared_ptr < CompositLogger > Create (std::initializer_list<loggerType> loggers)
+  {
+    std::shared_ptr < CompositLogger > loggerPtr = std::make_shared < CompositLogger > ();
+    for (auto & i:loggers) {
+	switch (i) {
+	  case loggerType::FILE:
+	    {
+	    	loggerFile.open("log.txt", std::fstream::app);
+	      loggerPtr->addLogger(std::make_shared < Logger > (loggerFile));
+	      break;
+	    }
+	  case loggerType::SOUT:
+	    {
+	      loggerPtr->addLogger(std::make_shared < Logger > (std::cout));
+	      break;
+	    }
+	  default:
+	    {
+	    	 //TODO:make null object logger;
+	    }
+	  }
+      }
+    return loggerPtr;
+  }
+
+
+};
+
 
 
 
@@ -235,29 +242,20 @@ int
 main ()
 {
 
-//  Logger ll (std::cout);
-//  ll << "we log everything" << " even the fact that we are logging now for "
-//    << 13 << "times"<<std::endl;
-//  ll<<"and new line after endl"<<std::endl;;
-//  ll.withTimestamp<<" timestamped"<<std::endl;
 
 
-
-  CompositLogger cLogger;
+	std::shared_ptr<CompositLogger> clp = std::make_shared<CompositLogger>();
 
   std::ofstream fileComp("composite.log");
-  cLogger.addLogger(std::make_shared<Logger>(fileComp));
+  clp->addLogger(std::make_shared<Logger>(fileComp));
 
   std::ofstream anotherFileComp("another.log");
-  cLogger.addLogger(std::make_shared<Logger>(anotherFileComp));
+  clp->addLogger(std::make_shared<Logger>(anotherFileComp));
 
-  cLogger.addLogger(std::make_shared<Logger>(std::cout));
-  cLogger<<"composite log here";
-  cLogger.withTimestamp()<<"timestamped log"<<"with endline"<<std::endl;
-  cLogger.withTimestamp()<<"happy logging"<<std::endl;
-
-
-
+  clp->addLogger(std::make_shared<Logger>(std::cout));
+  *clp<<"composite log here";
+  clp->withTimestamp()<<"timestamped log"<<"with endline"<<std::endl;
+  clp->withTimestamp()<<"happy logging"<<std::endl;
 
 
 }
