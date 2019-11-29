@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <stdarg.h>
 
-#include "fileHandler.h"
 
 
 class Ipv4
@@ -249,7 +248,6 @@ int mainIP(int argc, char **argv)
 	int b {2};
 	int c {4};
 	int min = minimum(a,b,c);
-	int min2 = MinSimple(2, a, c);
 	std::cout<<min;
 
 }

@@ -14,24 +14,8 @@
 
 
 
-//delete this
-class ILogger
-{
-protected:
-	ILogger(){};
-public:
-	virtual ~ILogger() =0;
 
-
-
-};
-
-
-ILogger::~ILogger(){
-	;
-}
-
-class Logger : public ILogger
+class Logger
 {
 protected:
       std::ostream &out_;
@@ -59,7 +43,24 @@ public:
     	*this<<"["<<timeHuman<<"]";
     	return *this;
     }
+
+    Logger& info(){
+    	*this<<"[INFO]";
+    	return *this;
+    }
+
+    Logger& warn(){
+    	*this<<"[WARN]";
+    	return *this;
+    }
+
+    Logger& error(){
+    	*this<<"[ERROR]";
+    	return *this;
+    }
 };
+
+
 
 template < typename T >
 Logger & operator<< (Logger & logger, T in){
@@ -68,59 +69,33 @@ Logger & operator<< (Logger & logger, T in){
 }
 
 
+class NullBuff: public std::streambuf{
+public:
+	int overflow(int c){return c;};
+};
 
 
-
-//
-//
-//class CompositLogger : public ILogger
-//{
-//  std::vector < std::shared_ptr < Logger >> loggers;
-//
-//public:
-//
-//  void addLogger (std::shared_ptr < Logger > logger)
-//  {
-//    loggers.push_back (logger);
-//  }
-//
-//  CompositLogger& withTimestamp(){
-//	  for (auto i : loggers){
-//	  		i->withTimestamp();
-//	  	}
-//	  	return *this;
-//  }
-//
-// template <typename T>
-// friend CompositLogger& operator<<(CompositLogger &cLogger, T in);
-//
-//
-//
-// CompositLogger& operator <<(std::ostream& (*os)(std::ostream&))
-//  {
-//	  for (auto i : loggers){
-//		  		i->operator <<(os);
-//		  	}
-//      return *this;
-//  }
-//
-//};
-//
-//
-//template <typename T>
-//CompositLogger & operator<<(CompositLogger &cLogger, T in){
-//	for (auto i : cLogger.loggers){
-//		*i<<in;
-//	}
-//	return cLogger;
-//}
+class NullStream : public std::ostream {
+    class NullBuffer : public std::streambuf {
+    public:
+        int overflow( int c ) { return c; }
+    } m_nb;
+public:
+    NullStream() : std::ostream( &m_nb ) {}
+};
 
 
+std::streambuf * sb;
+
+class NullLogger : public Logger
+{
+	NullStream nullStream;
+public:
+	NullLogger(): Logger::Logger(NullLogger::nullStream){};
+};
 
 
-
-
-class CompositLogger : public ILogger
+class CompositLogger
 {
   std::vector < std::shared_ptr < Logger >> loggers;
 std::vector<std::shared_ptr<CompositLogger>>compositeLoggers;
@@ -133,7 +108,6 @@ public:
 
   void addLogger (std::shared_ptr < CompositLogger > compositLogger)
   {
-	  //check is not in list to avoid loops?
 	  compositeLoggers.push_back (compositLogger);
   }
 
@@ -145,6 +119,36 @@ public:
 			i->withTimestamp();
 		}
 	  	return *this;
+  }
+
+  CompositLogger& info(){
+	  for (auto i : loggers){
+		  i->info();
+	  }
+	  for (auto i : compositeLoggers){
+		  i->info();
+	  }
+	  return *this;
+  }
+
+  CompositLogger& warn(){
+	  for (auto i : loggers){
+		  i->warn();
+	  }
+	  for (auto i : compositeLoggers){
+		  i->warn();
+	  }
+	  return *this;
+  }
+
+  CompositLogger& error(){
+	  for (auto i : loggers){
+		  i->error();
+	  }
+	  for (auto i : compositeLoggers){
+		  i->error();
+	  }
+	  return *this;
   }
 
  template <typename T>
@@ -163,6 +167,7 @@ public:
       return *this;
   }
 
+
 };
 
 
@@ -179,31 +184,36 @@ CompositLogger & operator<<(CompositLogger &cLogger, T in){
 
 
 
-
-
-
-
-
-
-
-
 class LoggerFactory
 {
-	 std::ofstream loggerFile;
+	std::string logFilename_;
+	std::unique_ptr<std::ofstream> loggerFilePtr_;
+	std::shared_ptr<std::ostringstream> ossPtr_;
+
 public:
-  enum class loggerType:int
+  enum loggerType
   {
     FILE,
-    SOUT,
+    COUT,
+	OSS,
     COMPOSIT,
+	LNULL,
   };
 
 
+  LoggerFactory(std::string logFilename = "log.txt", std::shared_ptr<std::ostringstream> variableToLog = std::make_unique<std::ostringstream>()){
+	  logFilename_ = logFilename;
+ 	  loggerFilePtr_ = std::make_unique<std::ofstream>();
+ 	  ossPtr_ = variableToLog;
+   }
+
+
   ~LoggerFactory(){
-	  if (loggerFile.is_open()){
-		  loggerFile.close();
+	  if (loggerFilePtr_->is_open()){
+		  loggerFilePtr_->close();
 	  }
   }
+
 
 
   std::shared_ptr < CompositLogger > Create (std::initializer_list<loggerType> loggers)
@@ -213,27 +223,30 @@ public:
 	switch (i) {
 	  case loggerType::FILE:
 	    {
-	    	loggerFile.open("log.txt", std::fstream::app);
-	      loggerPtr->addLogger(std::make_shared < Logger > (loggerFile));
+	      loggerFilePtr_->open(logFilename_, std::ostream::app);
+	      loggerPtr->addLogger(std::make_shared < Logger > (*loggerFilePtr_));
 	      break;
 	    }
-	  case loggerType::SOUT:
+	  case loggerType::COUT:
 	    {
 	      loggerPtr->addLogger(std::make_shared < Logger > (std::cout));
 	      break;
 	    }
+	  case loggerType::OSS:
+		{
+		  loggerPtr->addLogger(std::make_shared < Logger > (*ossPtr_));
+		  break;
+		}
 	  default:
 	    {
-	    	 //TODO:make null object logger;
+	    	loggerPtr->addLogger(std::make_shared<NullLogger> ());
+	    	break;
 	    }
 	  }
       }
     return loggerPtr;
   }
-
-
 };
-
 
 
 
@@ -241,21 +254,16 @@ public:
 int
 main ()
 {
+	LoggerFactory lf;
+	std::shared_ptr<CompositLogger> logger = lf.Create({LoggerFactory::loggerType::COUT, LoggerFactory::loggerType::FILE});
+	std::stringstream ss;
+	logger->addLogger(std::make_shared<Logger>(ss));
 
 
-
-	std::shared_ptr<CompositLogger> clp = std::make_shared<CompositLogger>();
-
-  std::ofstream fileComp("composite.log");
-  clp->addLogger(std::make_shared<Logger>(fileComp));
-
-  std::ofstream anotherFileComp("another.log");
-  clp->addLogger(std::make_shared<Logger>(anotherFileComp));
-
-  clp->addLogger(std::make_shared<Logger>(std::cout));
-  *clp<<"composite log here";
-  clp->withTimestamp()<<"timestamped log"<<"with endline"<<std::endl;
-  clp->withTimestamp()<<"happy logging"<<std::endl;
-
-
+	logger->withTimestamp()<<"timestamped log"<<"with endline"<<std::endl;
+	auto richLogger = logger->withTimestamp();
+	richLogger<<"happy logging!"<<std::endl;
+	logger->withTimestamp().info()<<"example info log"<<std::endl;
+	auto evenRicherErrorLogger = logger->withTimestamp().error();
+	evenRicherErrorLogger<<"All fur coat, and no knickers"<<std::endl;
 }

@@ -13,7 +13,6 @@
 #include <map>
 #include <fstream>
 
-#include "fileHandler.h"
 #include <experimental/filesystem>
 #include <sstream>
 #include <algorithm>
@@ -223,6 +222,7 @@ int mainProc(int argc, char **argv)
 
 	std::cout<<"done"<<'\n';
 	std::cin.get();
+	return 0;
 }
 
 
