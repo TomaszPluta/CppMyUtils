@@ -1,0 +1,8 @@
+[Fri Nov 29 12:19:34 2019]timestamped logwith endline
+[Fri Nov 29 12:19:34 2019]happy logging!
+[Fri Nov 29 12:19:34 2019][INFO]example info log
+[Fri Nov 29 12:19:34 2019][ERROR]All fur coat, and no knickers
+[Fri Nov 29 14:45:50 2019]timestamped logwith endline
+[Fri Nov 29 14:45:50 2019]happy logging!
+[Fri Nov 29 14:45:50 2019][INFO]example info log
+[Fri Nov 29 14:45:50 2019][ERROR]All fur coat, and no knickers

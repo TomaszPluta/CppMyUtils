@@ -4,25 +4,31 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/LocalToSocket.cpp \
 ../src/MiscUtils.cpp \
-../src/dirSize.cpp \
+../src/directoryUtils.cpp \
 ../src/logger.cpp \
 ../src/mvc.cpp \
-../src/proc.cpp 
+../src/proc.cpp \
+../src/timeUtils.cpp 
 
 OBJS += \
+./src/LocalToSocket.o \
 ./src/MiscUtils.o \
-./src/dirSize.o \
+./src/directoryUtils.o \
 ./src/logger.o \
 ./src/mvc.o \
-./src/proc.o 
+./src/proc.o \
+./src/timeUtils.o 
 
 CPP_DEPS += \
+./src/LocalToSocket.d \
 ./src/MiscUtils.d \
-./src/dirSize.d \
+./src/directoryUtils.d \
 ./src/logger.d \
 ./src/mvc.d \
-./src/proc.d 
+./src/proc.d \
+./src/timeUtils.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

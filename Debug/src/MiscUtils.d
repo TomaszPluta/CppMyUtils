@@ -1,3 +1,1 @@
-src/MiscUtils.o: ../src/MiscUtils.cpp ../src/fileHandler.h
-
-../src/fileHandler.h:
+src/MiscUtils.o: ../src/MiscUtils.cpp
