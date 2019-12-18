@@ -12,22 +12,14 @@
 #include "functional"
 
 
-//template <typename T>
-//void out(T t){
-//	std::cout<<t<<std::endl;
-//}
-
 
 void out(std::string t){
 	std::cout<<t<<std::endl;
 }
 
-
 void doubleOut(std::string t, char x){
 	std::cout<<t<<std::to_string(x)<<std::endl;
 }
-
-
 
 
 template<typename F, typename ... Args>
@@ -42,7 +34,6 @@ int funcProfile(F function, Args ... args){
 }
 
 
-
 template<typename F, typename ... Args>
 int funcProfile2(F function, Args ... args){
 	std::chrono::high_resolution_clock::time_point startPoint = std::chrono::high_resolution_clock::now();
@@ -55,9 +46,7 @@ int funcProfile2(F function, Args ... args){
 }
 
 
-
-
-int main (void){
+int mainT (void){
 
 	funcProfile(out, "bbbb");
 	funcProfile(doubleOut, "ccc", 'D');
