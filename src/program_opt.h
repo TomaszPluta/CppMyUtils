@@ -40,16 +40,18 @@ class ProgramOptions{
 	std::vector<opt>  parse(int argc, const char *argv[]){
 		std::vector<std::string>commandLineTokens(argv+1, argv+argc);
 		std::vector<opt> givenOpt;
-		for (auto &arg : commandLineTokens){
-			std::cout << arg<<std::endl;
-			auto iter = std::find_if(begin(opts), end(opts), [&](opt o){return (arg == o.name_);});
+		for (std::vector<std::string>::iterator it = begin(commandLineTokens); it < end(commandLineTokens); it++){
+			std::cout << *it <<std::endl;
+			auto iter = std::find_if(begin(opts), end(opts), [&](opt o){return (*it == o.name_);});
 			if (iter!=end(opts)){
 				if (iter->hasValue_){
-					iter->value = arg;
+					std::cout<<"has value"<<std::endl;
+					it++;
+					iter->value = *it;
 				}
 				givenOpt.push_back(*iter);
 			} else{
-				std::cout<<"invalid option: "<<arg<<std::endl;
+				std::cout<<"invalid option: "<<*it<<std::endl;
 			}
 		}
 		return givenOpt;
@@ -59,4 +61,13 @@ class ProgramOptions{
 
 
 
-
+/* Example usage:
+ *
+ * ProgramOptions programOptions;
+ *	programOptions.addUnparamOpt("--help", "prints help");
+ *	programOptions.addParamOpt("--port", "port to connect");
+ *
+ *	const char *cmd[] = {"programName", "--verbose", "blahblah", "--port", "1886", "foobar"};
+ *	std::vector<opt> options =  programOptions.parse(6, cmd);
+s *
+ */
