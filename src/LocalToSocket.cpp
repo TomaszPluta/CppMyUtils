@@ -4,43 +4,24 @@
 #include <string>
 #include <string_view>
 
-
-
-//
-//#include <iostream>     // std::cout
-//#include <algorithm>    // std::find_if
-//#include <vector>       // std::vector
-//
-//bool IsOdd (int i) {
-//  return ((i%2)==1);
-//}
-//
-//int main () {
-//  std::vector<int> myvector;
-//
-//  myvector.push_back(10);
-//  myvector.push_back(25);
-//  myvector.push_back(40);
-//  myvector.push_back(55);
-//
-//  std::vector<int>::iterator it = std::find_if (myvector.begin(), myvector.end(), IsOdd);
-//  std::cout << "The first odd value is " << *it << '\n';
-//
-//
-//  *it = 77;
-//
-//
-//  std::cout << "The mod odd value is " << *it << '\n';
-//
-//  return 0;
-//}
-
-
-
-
+#include <chrono>
+#include <ctime>
+#include <thread>
 #include "program_opt.h"
 
+
 int main(int argc, char *argv[]) {
+
+	std::cout<<"hello"<<std::endl;
+
+	while (1){
+		auto now = std::chrono::system_clock::now();
+		time_t timeLocal = std::chrono::system_clock::to_time_t(now);
+
+		std::cout<<ctime(&timeLocal)<<std::endl;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
 
 	std::string ipAddr{"127.0.0.1"};
 	int port{1886};
