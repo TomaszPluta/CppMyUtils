@@ -10,7 +10,7 @@
 #include "program_opt.h"
 
 
-int main(int argc, char *argv[]) {
+int Sender(int argc, char *argv[]) {
 
 	std::cout<<"hello"<<std::endl;
 

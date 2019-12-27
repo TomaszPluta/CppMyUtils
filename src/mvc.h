@@ -79,7 +79,6 @@ public:
 		;
 	}
 
-
 	 int getId() override{
 		 return 1;
 	 }
@@ -135,8 +134,8 @@ private:
 
 
 
-
-int mainMVC(void){
+/*
+int mainExampleUsage(void){
 
 	SpreadSheetModel spreadSheetModel{};
 
@@ -147,9 +146,7 @@ int mainMVC(void){
 	spreadSheetModel.addObserver(observer3);
 
 	spreadSheetModel.setCellValue("a", 2, 100);
-
-
 }
-
+*/
 
 
