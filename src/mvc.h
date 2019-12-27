@@ -61,8 +61,7 @@ private:
 
 
 
-
-
+/********************************************************************************************************/
 class SpreadSheetModel : public Subject{
 public:
 	void setCellValue(std::string_view col, const int row, const double val){

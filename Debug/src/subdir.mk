@@ -8,7 +8,6 @@ CPP_SRCS += \
 ../src/MiscUtils.cpp \
 ../src/directoryUtils.cpp \
 ../src/logger.cpp \
-../src/mvc.cpp \
 ../src/proc.cpp \
 ../src/timeUtils.cpp 
 
@@ -17,7 +16,6 @@ OBJS += \
 ./src/MiscUtils.o \
 ./src/directoryUtils.o \
 ./src/logger.o \
-./src/mvc.o \
 ./src/proc.o \
 ./src/timeUtils.o 
 
@@ -26,7 +24,6 @@ CPP_DEPS += \
 ./src/MiscUtils.d \
 ./src/directoryUtils.d \
 ./src/logger.d \
-./src/mvc.d \
 ./src/proc.d \
 ./src/timeUtils.d 
 
