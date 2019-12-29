@@ -23,16 +23,17 @@ public:
 
 	void write(T data){
 		std::cout<<"data: "<<data<<", size: "<<nextPtr->size()<<", cap: "<< nextPtr->capacity()<<std::endl;
+		nextPtr->push_back(data);
 		if (nextPtr->size() == nextPtr->capacity()){
 			std::cout<<"swap called"<<std::endl;
 			swap();
 		}
-		nextPtr->push_back(data);
 	}
 
 	void swap (void){
 		std::unique_lock<std::mutex>lock(mx);
 		currentPtr.swap(nextPtr);
+		currentPtr->clear();
 	}
 
 	template <typename U>
@@ -40,9 +41,9 @@ public:
 		std::copy(begin(*currentPtr), end(*currentPtr), outputIter);
 	}
 
-//	T operator[](int index){
-//		return (*currentPtr)[index];
-//	}
+	T operator[](int index){
+		return (*currentPtr)[index];
+	}
 
 
 

@@ -1,3 +1,3 @@
-src/MiscUtils.o: ../src/MiscUtils.cpp ../src/mvc.h
+src/MiscUtils.o: ../src/MiscUtils.cpp ../src/doubleBuff.h
 
-../src/mvc.h:
+../src/doubleBuff.h:
