@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv)
 {
-	dBuff<int> dbuff(10);
+	dBuff<std::string> dbuff(10);
 	TestDoubleBuffReadWrite(dbuff);
 
 }

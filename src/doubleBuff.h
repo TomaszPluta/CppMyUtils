@@ -15,8 +15,10 @@ class dBuff{
 
 	void swap (void){
 		std::unique_lock<std::mutex>lock(mx);
+	//	std::cout<<(*currentPtr)[0]<<std::endl;
 		currentPtr.swap(nextPtr);
-		currentPtr->clear();
+	//	std::cout<<(*currentPtr)[0]<<std::endl;
+		nextPtr->clear();
 	}
 
 public:
@@ -29,7 +31,7 @@ public:
 	}
 
 	void write(T data){
-		std::cout<<"data: "<<data<<", size: "<<nextPtr->size()<<", cap: "<< nextPtr->capacity()<<std::endl;
+	//	std::cout<<"data: "<<data<<", size: "<<nextPtr->size()<<", cap: "<< nextPtr->capacity()<<std::endl;
 		nextPtr->push_back(data);
 		if (nextPtr->size() == nextPtr->capacity()){
 			std::cout<<"swap called"<<std::endl;
@@ -49,43 +51,71 @@ public:
 		return (*currentPtr)[index];
 	}
 
+
+	void showNextBuff(){
+		for (int i = 0; i <(*nextPtr).size(); i++){
+			std::cout<<(*nextPtr)[i]<<std::endl;
+		}
+		std::cout<<std::endl;
+	}
+
+	void showCurrentBuff(){
+		for (int i = 0; i <(*currentPtr).size(); i++){
+			std::cout<<(*currentPtr)[i]<<std::endl;
+		}
+		std::cout<<std::endl;
+	}
+
 };
 
 
+std::vector<std::string>  testData= {
+		std::string(40, 'a'),
+		std::string(40, 'b'),
+		std::string(40, 'c'),
+		std::string(40, 'd'),
+		std::string(40, 'e'),
+		std::string(40, 'f'),
+		std::string(40, 'g'),
+		std::string(40, 'h'),
+		std::string(40, 'i'),
+		std::string(40, 'j'),
+};
 
-dBuff<int> dbuff(10);
+dBuff<std::string> dbuff(10);
 
-void writeToDBuff(dBuff<int> & dbuff){
+void writeToDBuff(dBuff<std::string> & dbuff){
 	for (int j=0; j< 10; j++){
 		for (int i=0; i<10; i++){
-			dbuff.write(i+(j*10));
+			//dbuff.write(i+(j*10));
+			dbuff.write(testData[i]+": "+std::to_string(j));
+
+			std::cout<<"\nwritte buff content: \n";
+			dbuff.showNextBuff();
+			std::cout<<"\nread buff content: \n";
+			dbuff.showCurrentBuff();
+
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 	}
 }
 
-void readFromDBuff(dBuff<int> & dbuff){
+void readFromDBuff(dBuff<std::string> & dbuff){
 	for (int j=0; j< 10; j++){
 		for (int i=0; i<10; i++){
 			std::cout<<dbuff[i]<<std::endl;
-			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }
 
-void TestDoubleBuffReadWrite(dBuff<int> & dbuff){
-	std::thread t1(readFromDBuff, std::ref(dbuff));
-	std::thread t2(writeToDBuff, std::ref((dbuff)));
-	t1.join();
+void TestDoubleBuffReadWrite(dBuff<std::string> & dbuff){
+//	std::thread t1(readFromDBuff, std::ref(dbuff));
+	std::thread t2(writeToDBuff,  std::ref(dbuff));
+//	t1.join();
 	t2.join();
 
 }
-
-
-
-
-
-
 
 
 
