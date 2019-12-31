@@ -13,10 +13,10 @@ template <typename T>
 class dBuff{
 	std::unique_ptr<std::vector<T>> currentPtr;
 	std::unique_ptr<std::vector<T>> nextPtr;
-//	std::mutex mx;
+	std::mutex mx;
 
 	void swap (void){
-//		std::unique_lock<std::mutex>lock(mx);
+		std::unique_lock<std::mutex>lock(mx);
 		currentPtr.swap(nextPtr);
 		nextPtr->clear();
 	}
@@ -31,7 +31,7 @@ public:
 	}
 
 	void write(T data){
-	//	std::cout<<"data: "<<data<<", size: "<<nextPtr->size()<<", cap: "<< nextPtr->capacity()<<std::endl;
+//		std::cout<<"data: "<<data<<", size: "<<nextPtr->size()<<", cap: "<< nextPtr->capacity()<<std::endl;
 		nextPtr->push_back(data);
 		if (nextPtr->size() == nextPtr->capacity()){
 			std::cout<<"swap called"<<std::endl;
@@ -42,12 +42,12 @@ public:
 
 	template <typename U>
 	void  read(U outputIter){
-//		std::unique_lock<std::mutex>lock(mx);
+		std::unique_lock<std::mutex>lock(mx);
 		std::copy(begin(*currentPtr), end(*currentPtr), outputIter);
 	}
 
 	T operator[](int index){
-//		std::unique_lock<std::mutex>lock(mx);
+		std::unique_lock<std::mutex>lock(mx);
 		return (*currentPtr)[index];
 	}
 
