@@ -4,6 +4,8 @@
 #include <mutex>
 #include <iostream>
 
+#include <iterator>
+#include <fstream>
 #include <thread>
 #include <chrono>
 
@@ -11,20 +13,18 @@ template <typename T>
 class dBuff{
 	std::unique_ptr<std::vector<T>> currentPtr;
 	std::unique_ptr<std::vector<T>> nextPtr;
-	std::mutex mx;
+//	std::mutex mx;
 
 	void swap (void){
-		std::unique_lock<std::mutex>lock(mx);
-	//	std::cout<<(*currentPtr)[0]<<std::endl;
+//		std::unique_lock<std::mutex>lock(mx);
 		currentPtr.swap(nextPtr);
-	//	std::cout<<(*currentPtr)[0]<<std::endl;
 		nextPtr->clear();
 	}
 
 public:
 
 	dBuff(int size) {
-		currentPtr = std::make_unique<std::vector<T>>();
+		currentPtr = std::make_unique<std::vector<T>>(1, "nothing in current");
 		currentPtr->reserve(size);
 		nextPtr = std::make_unique<std::vector<T>>();
 		nextPtr->reserve(size);
@@ -42,12 +42,12 @@ public:
 
 	template <typename U>
 	void  read(U outputIter){
-		std::unique_lock<std::mutex>lock(mx);
+//		std::unique_lock<std::mutex>lock(mx);
 		std::copy(begin(*currentPtr), end(*currentPtr), outputIter);
 	}
 
 	T operator[](int index){
-		std::unique_lock<std::mutex>lock(mx);
+//		std::unique_lock<std::mutex>lock(mx);
 		return (*currentPtr)[index];
 	}
 
@@ -59,12 +59,19 @@ public:
 		std::cout<<std::endl;
 	}
 
-	void showCurrentBuff(){
-		for (int i = 0; i <(*currentPtr).size(); i++){
-			std::cout<<(*currentPtr)[i]<<std::endl;
-		}
+	void print(){
+		std::ostream_iterator<std::string> out_it (std::cout, "\n");
+		read(out_it);
 		std::cout<<std::endl;
 	}
+
+	void printToFile(std::string fName){
+		std::ofstream file(fName);
+		std::ostream_iterator<std::string> out_it(file, "\n");
+		read(out_it);
+		std::cout<<std::endl;
+	}
+
 
 };
 
@@ -84,35 +91,31 @@ std::vector<std::string>  testData= {
 
 dBuff<std::string> dbuff(10);
 
+void readFromDBuff(dBuff<std::string> & dbuff){
+	for (int j=0; j< 1000; j++){
+		std::cout<<"currbuff:"<<std::endl;
+		dbuff.print();
+		dbuff.printToFile("outtestthr.txt");
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+}
+
+
 void writeToDBuff(dBuff<std::string> & dbuff){
-	for (int j=0; j< 10; j++){
+	for (int j=0; j< 50; j++){
 		for (int i=0; i<10; i++){
 			//dbuff.write(i+(j*10));
 			dbuff.write(testData[i]+": "+std::to_string(j));
-
-			std::cout<<"\nwritte buff content: \n";
-			dbuff.showNextBuff();
-			std::cout<<"\nread buff content: \n";
-			dbuff.showCurrentBuff();
-
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 	}
-}
 
-void readFromDBuff(dBuff<std::string> & dbuff){
-	for (int j=0; j< 10; j++){
-		for (int i=0; i<10; i++){
-			std::cout<<dbuff[i]<<std::endl;
-		}
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
 }
 
 void TestDoubleBuffReadWrite(dBuff<std::string> & dbuff){
-//	std::thread t1(readFromDBuff, std::ref(dbuff));
+	std::thread t1(readFromDBuff, std::ref(dbuff));
 	std::thread t2(writeToDBuff,  std::ref(dbuff));
-//	t1.join();
+	t1.join();
 	t2.join();
 
 }
